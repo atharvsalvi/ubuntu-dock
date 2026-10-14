@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ubuntu Window Dock</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #1e1e1e; color: #fff; }
+        #dock { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .window-item {
+            padding: 12px 16px; border-radius: 8px; cursor: pointer;
+            background: #2d2d2d; border: 1px solid #444;
+        }
+        .window-item:hover { background: #3d3d3d; }
+    </style>
+</head>
+<body>
+    <h1>Ubuntu Active Windows</h1>
+    <div id="dock">Connecting to backend...</div>
+
+    <script>
+        const socket = io('http://192.168.0.107:3000');
+
+        socket.on('windows-update', (windows) => {
+            const dock = document.getElementById('dock');
+            dock.innerHTML = '';
+            if (!windows || windows.length === 0) {
+                dock.innerHTML = '<div>No active windows found.</div>';
+                return;
+            }
+            windows.forEach(win => {
+                const div = document.createElement('div');
+                div.className = 'window-item';
+                div.innerText = win.title;
+                div.onclick = () => activateWindow(win.id);
+                dock.appendChild(div);
+            });
+        });
+
+        function activateWindow(windowId) {
+            fetch('http://192.168.0.107:3000/api/activate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: windowId })
+            }).catch(err => console.error('Error:', err));
+        }
+    </script>
+</body>
+</html>
