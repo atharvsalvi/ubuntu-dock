@@ -19,7 +19,20 @@
     <div id="dock">Connecting to backend...</div>
 
     <script>
-        const socket = io('https://backpack-bulldog-latitude.ngrok-free.dev');
+        const socket = io(
+            'https://backpack-bulldog-latitude.ngrok-free.dev',
+            {
+                transports: ['websocket', 'polling']
+            }
+        );
+
+        socket.on('connect', () => {
+            console.log('Connected to Ubuntu backend:', socket.id);
+        });
+
+        socket.on('connect_error', (err) => {
+            console.error('Socket connection failed:', err.message);
+        });
 
         socket.on('windows-update', (windows) => {
             const dock = document.getElementById('dock');
@@ -38,11 +51,28 @@
         });
 
         function activateWindow(windowId) {
-            fetch('https://backpack-bulldog-latitude.ngrok-free.dev/api/activate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: windowId })
-            }).catch(err => console.error('Error:', err));
+            fetch(
+                'https://backpack-bulldog-latitude.ngrok-free.dev/api/activate',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: windowId })
+                }
+            )
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error(
+                        'Activation failed with status ' + response.status
+                    );
+                }
+
+                console.log('Activation request sent successfully');
+            })
+            .catch(function (err) {
+                console.error('Error activating window:', err);
+            });
         }
     </script>
 </body>
