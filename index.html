@@ -38,7 +38,7 @@
         });
 
         function activateWindow(windowId) {
-            fetch('http://192.168.0.107:3000/api/activate', {
+            fetch('https://backpack-bulldog-latitude.ngrok-free.dev/api/activate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: windowId })
